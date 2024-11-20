@@ -124,26 +124,30 @@ app.get('/collections/:collectionName/:id'
      });
 
 // Search
-app.get('/search', async function(req, res) {
-    const searchWord = req.query.q || '';  // Get the search query parameter (default to empty string if not provided)
-    const sortKey = req.query.sortKey || 'Title';  // Default to sorting by 'Activity'
-    const order = req.query.order || 'ASC';  // Default to ascending order
-   const collection = db.collection("activities");
+app.get('/search', async function (req, res) {
+    const searchWord = req.query.q || ''; // Get the search query parameter (default to empty string if not provided)
+    const sortKey = req.query.sortKey || 'Title'; // Default to sorting by 'Title'
+    const order = req.query.order || 'ASC'; // Default to ascending order
+    const collection = db.collection("activities");
+
     try {
-        // Construct the search query for MongoDB (case-insensitive search)
-        const searchQuery = {
-            $or: [
-                { title: { $regex: searchWord, $options: 'i' } },
-                { location: { $regex: searchWord, $options: 'i' } },
-                { description: { $regex: searchWord, $options: 'i' } },
-                { price: { $regex: searchWord, $options: 'i' } },
-                { availableSpace: { $regex: searchWord, $options: 'i' } },
-            ]
-        };
-       
+        let searchQuery = {};
+        if (searchWord) {
+            // Construct the search query for MongoDB (case-insensitive search)
+            searchQuery = {
+                $or: [
+                    { title: { $regex: searchWord, $options: 'i' } },
+                    { location: { $regex: searchWord, $options: 'i' } },
+                    { description: { $regex: searchWord, $options: 'i' } },
+                    { price: { $regex: searchWord, $options: 'i' } },
+                    { availableSpace: { $regex: searchWord, $options: 'i' } },
+                ],
+            };
+        }
+
         // Query the MongoDB database with the search criteria
         const activities = await collection.find(searchQuery).toArray();
-        
+
         // Sort the results based on the sortKey and order
         activities.sort((a, b) => {
             let comparison = 0;
@@ -169,6 +173,7 @@ app.get('/search', async function(req, res) {
         res.status(500).json({ message: 'Error occurred during search' });
     }
 });
+
 
 
 // Add a document to a collection
