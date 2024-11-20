@@ -15,18 +15,18 @@ app.use((req, res, next) => {
 });
 
 // Static file handling
-const imagePath = path.resolve(__dirname, "../Vuejs App/images");
-app.use('/image', express.static(imagePath));
-// app.use('/image/:imageName', (req, res, next) => {
-//     const fullPath = path.join(imagePath, req.params.imageName);
-//     fs.access(fullPath, fs.constants.F_OK, (err) => {
-//         if (err) {
-//             res.status(404).send('Image not found');
-//         } else {
-//             res.sendFile(fullPath);
-//         }
-//     });
-// });
+const imagePath = path.resolve(__dirname, "images");
+app.use('/images', express.static(imagePath));
+app.use('/images/:imageName', (req, res, next) => {
+    const fullPath = path.join(imagePath, req.params.imageName);
+    fs.access(fullPath, fs.constants.F_OK, (err) => {
+        if (err) {
+            res.status(404).send('Image not found');
+        } else {
+            res.sendFile(fullPath);
+        }
+    });
+});
 
 // Load properties
 const propertiesPath = path.resolve(__dirname, "conf/db.properties");
@@ -122,7 +122,16 @@ app.get('/collections/:collectionName/:id'
         res.status(400).send('Invalid ID format');
     }
      });
-   
+
+// Search
+app.get('/search',function(req,res){
+    if (req.query.q .includes(res.searchWord.toLowerCase()) ) {
+        res.send("Burrito search performed");
+        } else {
+        res.send("Another query and/or parameter");
+        }       
+})
+
 // Add a document to a collection
 app.post('/collections/:collectionName', (req, res, next) => {
     req.collection
