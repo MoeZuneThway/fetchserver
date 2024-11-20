@@ -64,15 +64,15 @@ app.get('/', (req, res) => {
 // app.param middleware
 app.param('collectionName', (req, res, next, collectionName) => {
    
-    // try {
-    //     req.collection = db.collection(collectionName);
-    //     console.log(`Accessing collection: ${collectionName}`);
-    //     next();
-    // } catch (error) {
-    //     next(error);
-    // }
-    req.collection = db.collection(collectionName);
- return next();
+    try {
+        req.collection = db.collection(collectionName);
+        console.log(`Accessing collection: ${collectionName}`);
+        next();
+    } catch (error) {
+        next(error);
+    }
+//     req.collection = db.collection(collectionName);
+//  return next();
 });
 
 // Get all documents from a collection
@@ -124,13 +124,52 @@ app.get('/collections/:collectionName/:id'
      });
 
 // Search
-app.get('/search',function(req,res){
-    if (req.query.q .includes(res.searchWord.toLowerCase()) ) {
-        res.send("Burrito search performed");
-        } else {
-        res.send("Another query and/or parameter");
-        }       
-})
+app.get('/search', async function(req, res) {
+    const searchWord = req.query.q || '';  // Get the search query parameter (default to empty string if not provided)
+    const sortKey = req.query.sortKey || 'Title';  // Default to sorting by 'Activity'
+    const order = req.query.order || 'ASC';  // Default to ascending order
+   const collection = db.collection("activities");
+    try {
+        // Construct the search query for MongoDB (case-insensitive search)
+        const searchQuery = {
+            $or: [
+                { title: { $regex: searchWord, $options: 'i' } },
+                { location: { $regex: searchWord, $options: 'i' } },
+                { description: { $regex: searchWord, $options: 'i' } },
+                { price: { $regex: searchWord, $options: 'i' } },
+                { availableSpace: { $regex: searchWord, $options: 'i' } },
+            ]
+        };
+       
+        // Query the MongoDB database with the search criteria
+        const activities = await collection.find(searchQuery).toArray();
+        
+        // Sort the results based on the sortKey and order
+        activities.sort((a, b) => {
+            let comparison = 0;
+
+            if (sortKey === 'Price') {
+                comparison = a.price - b.price;
+            } else if (sortKey === 'Title') {
+                comparison = a.title.localeCompare(b.title);
+            } else if (sortKey === 'Location') {
+                comparison = a.location.localeCompare(b.location);
+            } else if (sortKey === 'Availability') {
+                comparison = a.availableSpace - b.availableSpace;
+            }
+
+            return order === 'ASC' ? comparison : -comparison;
+        });
+
+        // Send the filtered and sorted activities back to the client
+        res.json(activities);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error occurred during search' });
+    }
+});
+
 
 // Add a document to a collection
 app.post('/collections/:collectionName', (req, res, next) => {
@@ -171,9 +210,6 @@ app.put('/collections/:collectionName/:id', (req, res, next) => {
         res.status(400).send({ message: "Invalid ID format" });
     }
 });
-
-
-
 // 404 Handler
 app.use((req, res) => {
     res.status(404).send('No page found');
