@@ -125,15 +125,16 @@ app.get('/collections/:collectionName/:id'
 
 // Search
 app.get('/search', async function (req, res) {
-    const searchWord = req.query.q || ''; // Get the search query parameter (default to empty string if not provided)
-    const sortKey = req.query.sortKey || 'Title'; // Default to sorting by 'Title'
-    const order = req.query.order || 'ASC'; // Default to ascending order
     const collection = db.collection("activities");
+    const searchWord = req.query.q || ''; 
+    const sortKey = req.query.sortKey || 'Activity'; 
+    const order = req.query.order || 'ASC'; 
+   
 
     try {
         let searchQuery ;
         if (searchWord) {
-            // Construct the search query for MongoDB (case-insensitive search)
+           
             searchQuery = {
                 $or: [
                     { title: { $regex: searchWord, $options: 'i' } },
@@ -154,7 +155,7 @@ app.get('/search', async function (req, res) {
 
             if (sortKey === 'Price') {
                 comparison = a.price - b.price;
-            } else if (sortKey === 'Title') {
+            } else if (sortKey === 'Activity') {
                 comparison = a.title.localeCompare(b.title);
             } else if (sortKey === 'Location') {
                 comparison = a.location.localeCompare(b.location);
