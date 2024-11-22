@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 });
 
 // Static file handling
-const imagePath = path.resolve(__dirname, "image");
+const imagePath = path.resolve(__dirname, "images");
 app.use('/images', express.static(imagePath));
 app.use('/images/:imageName', (req, res, next) => {
     const fullPath = path.join(imagePath, req.params.imageName);
