@@ -140,8 +140,8 @@ app.get('/search', async function (req, res) {
                     { title: { $regex: searchWord, $options: 'i' } },
                     { location: { $regex: searchWord, $options: 'i' } },
                     { description: { $regex: searchWord, $options: 'i' } },
-                    { price: { $regex: searchWord, $options: 'i' } },
-                    { availableSpace: { $regex: searchWord, $options: 'i' } },
+                    { price: { $regex: parseFloat(searchWord), $options: 'i' } },
+                    { availableSpace: { $regex: parseFloat(searchWord), $options: 'i' } },
                 ],
             };
         }
