@@ -135,13 +135,18 @@ app.get('/search', async function (req, res) {
         let searchQuery ;
         if (searchWord) {
            
+            const parsedWord = parseFloat(searchWord); // Try to parse numeric input
             searchQuery = {
                 $or: [
                     { title: { $regex: searchWord, $options: 'i' } },
                     { location: { $regex: searchWord, $options: 'i' } },
                     { description: { $regex: searchWord, $options: 'i' } },
-                    { price: { $regex: parseFloat(searchWord), $options: 'i' } },
-                    { availableSpace: { $regex: parseFloat(searchWord), $options: 'i' } },
+                    ...(isNaN(parsedWord)
+                        ? [] // Skip numeric fields if searchWord isn't numeric
+                        : [
+                              { price: { $eq: parsedWord } },
+                              { availableSpace: { $eq: parsedWord } },
+                          ]),
                 ],
             };
         }
