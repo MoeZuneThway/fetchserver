@@ -132,7 +132,7 @@ app.get('/search', async function (req, res) {
    
 
     try {
-        let searchQuery ;
+        let searchQuery = {};
         if (searchWord) {
            
             const parsedWord = parseFloat(searchWord); // Try to parse numeric input
@@ -235,5 +235,6 @@ app.use((err, req, res, next) => {
 // Start server
 const port = process.env.PORT ;
 app.listen(port, () => {
-    console.log('Listening at port '+ port);
+    console.log('Listening at port ' + port);
 });
+
