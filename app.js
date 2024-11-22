@@ -131,7 +131,7 @@ app.get('/search', async function (req, res) {
     const collection = db.collection("activities");
 
     try {
-        let searchQuery = {};
+        let searchQuery ;
         if (searchWord) {
             // Construct the search query for MongoDB (case-insensitive search)
             searchQuery = {
