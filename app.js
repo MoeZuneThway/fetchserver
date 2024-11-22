@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 });
 
 // Static file handling
-const imagePath = path.resolve(__dirname, "images");
+const imagePath = path.resolve(__dirname, "image");
 app.use('/images', express.static(imagePath));
 app.use('/images/:imageName', (req, res, next) => {
     const fullPath = path.join(imagePath, req.params.imageName);
@@ -228,7 +228,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const port = process.env.PORT || 3000;
+const port = process.env.PORT ;
 app.listen(port, () => {
     console.log('Listening at port '+ port);
 });
